@@ -69,9 +69,9 @@ const getAllPrices = async (req, res, next) => {
   const comfortRide = 2.8 + crowDistance * 0.5 + 0.15 * Math.random() * 30; // takes 30 minutes to travel to most places
   data = {
     grab,
-    gojek,
-    meteredFare: meteredFare * 2,
-    zig: comfortRide > 6 ? comfortRide * 2 : 6,
+    gojek: Math.round(gojek * 100) / 100, // round to 2 dp
+    meteredFare: Math.round(meteredFare * 2 * 100) / 100,
+    zig: Math.round((comfortRide > 6 ? comfortRide * 2 : 6) * 100) / 100,
   };
   res.status(200).json({
     message: "Successfully retrieved prices",
@@ -79,7 +79,7 @@ const getAllPrices = async (req, res, next) => {
   });
 };
 
-const getGrabPrices = async (req, res, next) => {
+const getPrices = async (req, res, next) => {
   const location = JSON.stringify({
     pickUp: {
       latitude: Number(req.query.fromLat),
@@ -106,14 +106,14 @@ const getGrabPrices = async (req, res, next) => {
   data =
     req.query.company_name === "grab"
       ? {
-          grab: result.json(),
+          grab: await result.json(),
         }
       : req.query.company_name === "gojek"
       ? {
-          gojek: result.json(),
+          gojek: await result.json(),
         }
       : {
-          services: result.json(),
+          services: await result.json(),
         };
 
   res.status(200).json({
@@ -122,4 +122,23 @@ const getGrabPrices = async (req, res, next) => {
   });
 };
 
-module.exports = { getLocations, getPrices };
+function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2 - lat1); // deg2rad below
+  var dLon = deg2rad(lon2 - lon1);
+  var a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(deg2rad(lat1)) *
+      Math.cos(deg2rad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI / 180);
+}
+
+module.exports = { getLocations, getAllPrices, getPrices };
