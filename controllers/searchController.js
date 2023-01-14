@@ -15,7 +15,7 @@ const getLocations = async (req, res, next) => {
   });
 };
 
-const getGrabPrices = async (req, res, next) => {
+const getPrices = async (req, res, next) => {
   const location = JSON.stringify({
     pickUp: {
       latitude: Number(req.query.fromLat),
@@ -39,12 +39,23 @@ const getGrabPrices = async (req, res, next) => {
       body: location,
     }
   );
-  const data = await result.json();
+  data =
+    req.query.company_name === "grab"
+      ? {
+          grab: result.json(),
+        }
+      : req.query.company_name === "gojek"
+      ? {
+          gojek: result.json(),
+        }
+      : {
+          services: result.json(),
+        };
 
   res.status(200).json({
-    message: "Successfully retrieved Grab prices",
+    message: "Successfully retrieved prices",
     data,
   });
 };
 
-module.exports = { getLocations, getGrabPrices };
+module.exports = { getLocations, getPrices };
