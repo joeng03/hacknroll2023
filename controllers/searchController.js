@@ -1,3 +1,6 @@
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+
 const getLocations = async (req, res, next) => {
   const result = await fetch(
     `https://www.grab.com/wp-json/api/farefeed/v1/poi-search?keyword=${req.query.searchString}&country_code=sg&reference=`,
