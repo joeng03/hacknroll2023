@@ -8,6 +8,6 @@ router.get("/", function (req, res, next) {
 });
 
 router.get("/locations", searchController.getLocations);
-router.get("/getprices/grab", searchController.getPrices);
+router.get("/getprices", searchController.getPrices);
 
 module.exports = router;
